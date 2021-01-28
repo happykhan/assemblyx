@@ -65,7 +65,7 @@ function App(){
     const reader = new FileReader();
     reader.onload = async (e) => { 
       const text = (e.target.result)
-      const savedMetrics = localStorage.getItem(`fasta-${name}`);
+    //  const savedMetrics = localStorage.getItem(`fasta-${name}`);
       // if (savedMetrics){
       //   setDat(dat.concat(JSON.parse(savedMetrics)));
       //   return
@@ -86,17 +86,18 @@ function App(){
       setDat(dat.concat(metrics));
       /*
       fetch('/db/pubmlst_rmlst_seqdef_kiosk/schemes/1/sequence', requestOptions) */
-      fetch("https://boring-kepler-ad998d.netlify.app/.netlify/functions/rmlst-fetch", requestOptions)
+      fetch("https://boring-kepler-ad998d.netlify.app/.netlify/functions/auth-fetch", requestOptions)
       .then(response => response.json())
-      .then(data => {
+      .then(data => console.log(data))
+/*       .then(data => {
         metrics['taxon_prediction'] = data['taxon_prediction'];
         metrics['exact_matches'] = data['exact_matches'];
         metrics['taxon'] = data['taxon_prediction'][0]['taxon'];
         metrics['rank'] = data['taxon_prediction'][0]['rank'];
-        localStorage.setItem(`fasta-${name}`, JSON.stringify(metrics))
-      });  
+   //     localStorage.setItem(`fasta-${name}`, JSON.stringify(metrics))
+      });  */ 
       setDat( dat.concat(metrics));
-      localStorage.setItem(`fasta-${name}`, JSON.stringify(metrics))
+   //   localStorage.setItem(`fasta-${name}`, JSON.stringify(metrics))
     };
     reader.readAsText(file);
   };
