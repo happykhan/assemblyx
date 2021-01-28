@@ -9,7 +9,7 @@
         body: JSON.stringify(payload) 
       }; 
       console.log(payload)
-      fetch('https://cors-anywhere.herokuapp.com/http://rest.pubmlst.org/db/pubmlst_rmlst_seqdef_kiosk/schemes/1/sequence', requestOptions)
+      fetch('/db/pubmlst_rmlst_seqdef_kiosk/schemes/1/sequence', requestOptions)
       .then(response => response.json())
       .then(data => console.log(data)); 
     }
