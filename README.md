@@ -1,3 +1,7 @@
+# AssemblyX
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/877cc7b0-3c63-465b-ac7f-4bb77e115324/deploy-status)](https://app.netlify.com/sites/boring-kepler-ad998d/deploys)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
