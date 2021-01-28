@@ -84,7 +84,7 @@ function App(){
         body: JSON.stringify(payload) 
       }; 
       setDat(dat.concat(metrics));
-      fetch('/db/pubmlst_rmlst_seqdef_kiosk/schemes/1/sequence', requestOptions)
+      fetch('https://cors-anywhere.herokuapp.com/http://rest.pubmlst.org/db/pubmlst_rmlst_seqdef_kiosk/schemes/1/sequence', requestOptions)
       .then(response => response.json())
       .then(data => {
         metrics['taxon_prediction'] = data['taxon_prediction'];
