@@ -8,7 +8,7 @@ const Summary = ({ columns, data }) => {
     headerGroups,
     rows,
     prepareRow,
-    state,
+    // state,
   } = useTable({
     columns,
     data,
