@@ -3,18 +3,8 @@
 const fetch = require('node-fetch')
 
 const handler = async function (event, context) {
-  if (!context.clientContext && !context.clientContext.identity) {
-    return {
-      statusCode: 500,
-      // Could be a custom message or object i.e. JSON.stringify(err)
-      body: JSON.stringify({
-        msg: 'No identity instance detected. Did you enable it?',
-      }),
-    }
-  }
-  const { identity, user } = context.clientContext
   try {
-    const response = await fetch('https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/schemes/1/sequence')
+    const response = await fetch('http://rest.pubmlst.org/db/pubmlst_rmlst_seqdef_kiosk/schemes/1/sequence', JSON.stringify(event.payload))
     if (!response.ok) {
       // NOT res.status >= 200 && res.status < 300
       return { statusCode: response.status, body: response.statusText }
