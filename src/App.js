@@ -66,10 +66,10 @@ function App(){
     reader.onload = async (e) => { 
       const text = (e.target.result)
       const savedMetrics = localStorage.getItem(`fasta-${name}`);
-      if (savedMetrics){
-        setDat(dat.concat(JSON.parse(savedMetrics)));
-        return
-      }
+      // if (savedMetrics){
+      //   setDat(dat.concat(JSON.parse(savedMetrics)));
+      //   return
+      // }
 
       let metrics = updateMetrics(name, text);
       metrics['name'] = name; 
@@ -84,7 +84,9 @@ function App(){
         body: JSON.stringify(payload) 
       }; 
       setDat(dat.concat(metrics));
-      fetch('/db/pubmlst_rmlst_seqdef_kiosk/schemes/1/sequence', requestOptions)
+      /*
+      fetch('/db/pubmlst_rmlst_seqdef_kiosk/schemes/1/sequence', requestOptions) */
+      fetch("https://boring-kepler-ad998d.netlify.app/.netlify/functions/rmlst-fetch", requestOptions)
       .then(response => response.json())
       .then(data => {
         metrics['taxon_prediction'] = data['taxon_prediction'];
