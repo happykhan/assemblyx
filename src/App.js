@@ -6,7 +6,9 @@ import Alert from 'react-bootstrap/Alert';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
+
 /* 
 const newMessage = (message, status) => {
 
@@ -15,11 +17,10 @@ const newMessage = (message, status) => {
 } */
 
 function App(){  
-
-  let messages = []
-  const [dat, setDat] = useState( [] );
+  const INIT_STATE = { records : []}  ; 
+  let messages = [] 
+  const [dat, setDat] = useState( INIT_STATE );
   // Check if any sequence needs to be done, then send. 
-
   const updateMetrics = (name, text) => {
     let outdict = {
       noContigs: 0,
@@ -59,56 +60,87 @@ function App(){
     return outdict
 
   };
+  const updateMainState = (state, row) => {
+    let foundIndex = -1; 
+    let count = 0 
+    for (const element of state) {
+      if (element['name'] === row['name']) {
+        foundIndex = count
+      }
+      count++;
+    }  
+    if (foundIndex > -1){
+      const newRows = [...state];
+      newRows[foundIndex] = row; 
+      return newRows;
+    } else {
+      return [...state, row];
+    }
+
+  }
 
   const  addFastaFile = (file) => {
-    const name = file.name
+    const name = file.name;
     const reader = new FileReader();
     reader.onload = async (e) => { 
       const text = (e.target.result)
-    //  const savedMetrics = localStorage.getItem(`fasta-${name}`);
-      // if (savedMetrics){
-      //   setDat(dat.concat(JSON.parse(savedMetrics)));
-      //   return
-      // }
 
       let metrics = updateMetrics(name, text);
       metrics['name'] = name; 
       metrics['seq'] = text; 
       metrics['rank'] = 'unknown';
       metrics['taxon'] = 'unknown';
+      metrics['status'] = 'Fetching taxon';
       const encodeSeq = new Buffer.from(text).toString('base64');
       const payload = { base64: true, details: true, sequence: encodeSeq }
       const requestOptions = {
         method: 'POST',
-        // headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload) 
       }; 
-      setDat(dat.concat(metrics));
-      /*
-      fetch('/db/pubmlst_rmlst_seqdef_kiosk/schemes/1/sequence', requestOptions) */
-      fetch("https://boring-kepler-ad998d.netlify.app/.netlify/functions/auth-fetch", requestOptions)
+
+      setDat(dat => { return {records: updateMainState(dat.records, metrics)} } );
+
+      fetch("https://jobrunnerx.herokuapp.com/api/v1/rmlst", requestOptions)
       .then(response => response.json())
-      .then(data => console.log(data))
-/*       .then(data => {
+      .then(data => {
         metrics['taxon_prediction'] = data['taxon_prediction'];
         metrics['exact_matches'] = data['exact_matches'];
         metrics['taxon'] = data['taxon_prediction'][0]['taxon'];
         metrics['rank'] = data['taxon_prediction'][0]['rank'];
-   //     localStorage.setItem(`fasta-${name}`, JSON.stringify(metrics))
-      });  */ 
-      setDat( dat.concat(metrics));
-   //   localStorage.setItem(`fasta-${name}`, JSON.stringify(metrics))
+        metrics['status'] = 'Done';
+        setDat(dat => { return {records: updateMainState(dat.records, metrics)} } );
+      })
+      .catch(err => {
+        console.log('ERROR: fetching taxon, ' + err)
+        metrics['status'] = 'ERROR';
+        setDat(dat => { return {records: updateMainState(dat.records, metrics)} } );
+      });   
     };
     reader.readAsText(file);
   };
+  const clearSession = () => {
+    setDat( INIT_STATE );
+  }
+  var blob = new Blob([JSON.stringify(dat,null,2)], {type: "application/json"});
+  const saveSession = URL.createObjectURL(blob);
 
+  const loadSession = (file) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => { 
+      setDat(JSON.parse(e.target.result));
+    }
+    reader.readAsText(file.target.files[0]);
+
+  }
   const addFastaFiles = (files) => {
+    console.log(files.target);
     for (var i = 0; i < files.target.files.length; i++) {
       addFastaFile(files.target.files[i]);
     } 
-  };
-
     
+  };
+  
   const columns = [ 
       {
       Header: "Filename", accessor: "name",
@@ -128,8 +160,11 @@ function App(){
         {
           Header: "Taxon", accessor: "taxon",
           },              
+          {
+            Header: "Status", accessor: "status",
+            },                      
   ]; 
-
+  
  return (
   <div className="App">  
   <Container>
@@ -137,25 +172,28 @@ function App(){
     <h1>AssemblyX</h1>
     </Row>
     <Row>
-      <Form>
-      <Form.File  onChange={(e) => addFastaFiles(e)} multiple label="Select FASTA files"/>
-      </Form>
-    </Row>
+      <Col>
+        <Form>
+        <Form.File  onChange={(e) => addFastaFiles(e) } multiple label="Select FASTA files"/>
+        </Form>
+      </Col>
+      <Col>
+        <Form>
+        <Form.File  onChange={(e) => loadSession(e) } label="Load Session"/>
+        </Form>     
+      </Col>
+    </Row> 
     <Row>
-    {(dat.length > 0)
-    ? <Summary columns={columns} data={dat} />
-    : <Alert variant='info'>Select some data to get started</Alert>
+    {(dat.records.length > 0)
+    ? <Summary columns={columns} data={dat.records} />
+    : <Alert variant='info'>Load a FASTA file or AssemblyX.json file to get started</Alert>
     }     
     </Row>
     <Row>
-      <Col>
-      Assembly charts will go here. 
-      </Col>
+      <Button href={saveSession} download>Save session</Button>
+      <Button onClick={() => clearSession()}>Clear session</Button>
+    </Row>    
 
-      <Col>
-      Species identification will go here. 
-      </Col>
-    </Row>
     { messages }
 
   </Container>
