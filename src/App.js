@@ -101,7 +101,7 @@ function App(){
 
       setDat(dat => { return {records: updateMainState(dat.records, metrics)} } );
 
-      fetch("https://jobrunnerx.herokuapp.com/api/v1/rmlst", requestOptions)
+      fetch("https://boring-kepler-ad998d.netlify.app/.netlify/functions/test-fetch", requestOptions)
       .then(response => response.json())
       .then(data => {
         metrics['taxon_prediction'] = data['taxon_prediction'];
