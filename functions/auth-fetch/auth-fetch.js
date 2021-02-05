@@ -4,7 +4,7 @@ const fetch = require('node-fetch')
 
 const handler = async function (event, context, callback) {
   try {
-    const response = await fetch('http://rest.pubmlst.org/db/pubmlst_rmlst_seqdef_kiosk/schemes/1/sequence', JSON.stringify(event.payload))
+    const response = await fetch('https://jobrunnerx.herokuapp.com/api/v1/rmlst', JSON.stringify(event.payload))
 
 
   } catch (error) {
